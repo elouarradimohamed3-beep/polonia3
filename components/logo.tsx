@@ -33,7 +33,7 @@ export function Logo({ size = 44, className = "" }: { size?: number; className?:
     <span className={`inline-flex items-center gap-3 ${className}`}>
       <LogoMark size={size} />
       <span className="flex flex-col leading-none">
-        <span className="text-[1.65rem] font-extrabold tracking-tight text-white">IPTV</span>
+        <span className="text-[1.65rem] font-extrabold tracking-tight text-white">IPTV</span>{" "}
         <span className="mt-1.5 text-[0.68rem] font-bold tracking-[0.46em] text-accent">POLSKA</span>
       </span>
     </span>

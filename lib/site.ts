@@ -27,10 +27,12 @@ export const NAV = [
   { label: "Home", href: "/" },
   { label: "Sprzedawca IPTV", href: "/sprzedawca-iptv" },
   { label: "Przewodnik instalacji", href: "/przewodnik-instalacji" },
+  { label: "Blog", href: "/blog" },
   { label: "Skontaktuj się z nami", href: "/skontaktuj-sie-z-nami" },
 ] as const;
 
 export const FOOTER_LINKS = [
+  { label: "Blog i poradniki", href: "/blog" },
   { label: "Warunki korzystania", href: "/regulamin-iptv" },
   { label: "Zasady zwrotów i anulowania", href: "/zasady-zwrotow-i-anulowania" },
   { label: "O nas", href: "/o-nas" },

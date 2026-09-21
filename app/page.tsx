@@ -4,6 +4,7 @@ import { FeatureTabs } from "@/components/feature-tabs";
 import { Hero } from "@/components/hero";
 import { HowToStart } from "@/components/how-to-start";
 import { IntroSection } from "@/components/intro-section";
+import { LatestPosts } from "@/components/latest-posts";
 import { JsonLd } from "@/components/json-ld";
 import { PlanComparison } from "@/components/plan-comparison";
 import { Pricing } from "@/components/pricing";
@@ -51,6 +52,7 @@ export default function HomePage() {
       <WhyUs />
       <Testimonials />
       <FeatureTabs />
+      <LatestPosts />
       <Faq />
       <StickyCta />
     </div>

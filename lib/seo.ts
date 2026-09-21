@@ -16,9 +16,11 @@ type PageMeta = {
   path: string;
   /** Use the title as-is instead of appending the site name. */
   absolute?: boolean;
+  /** Set false when the route has its own opengraph-image file. */
+  defaultImage?: boolean;
 };
 
-export function pageMetadata({ title, description, path, absolute }: PageMeta): Metadata {
+export function pageMetadata({ title, description, path, absolute, defaultImage = true }: PageMeta): Metadata {
   const fullTitle = absolute ? title : `${title} | ${SITE.name}`;
   return {
     title: absolute ? { absolute: title } : title,
@@ -31,9 +33,16 @@ export function pageMetadata({ title, description, path, absolute }: PageMeta): 
       description,
       locale: "pl_PL",
       siteName: SITE.name,
-      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${SITE.name} – ${title}` }],
+      ...(defaultImage
+        ? { images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${SITE.name} – ${title}` }] }
+        : {}),
     },
-    twitter: { card: "summary_large_image", title: fullTitle, description, images: ["/twitter-image"] },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      description,
+      ...(defaultImage ? { images: ["/twitter-image"] } : {}),
+    },
   };
 }
 

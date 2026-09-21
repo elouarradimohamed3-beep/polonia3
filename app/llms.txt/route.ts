@@ -1,3 +1,4 @@
+import { getAllPosts } from "@/lib/blog";
 import { eur } from "@/lib/pricing";
 import { CONNECTION_OPTIONS, PLAN_DEFS, PRICES, RESELLER_PACKAGES, SITE } from "@/lib/site";
 
@@ -14,6 +15,9 @@ export function GET() {
   });
   const reseller = RESELLER_PACKAGES.map((p) => `${p.credits} kredytów (${eur(p.price)})`).join(", ");
   const u = SITE.url;
+  const blog = getAllPosts()
+    .map((p) => `- [${p.title}](${u}/blog/${p.slug}): ${p.description}`)
+    .join("\n");
 
   const body = `# ${SITE.name}
 
@@ -36,6 +40,11 @@ ${priceLines.join("\n")}
 - [Przewodnik instalacji](${u}/przewodnik-instalacji): konfiguracja IPTV krok po kroku na każdym urządzeniu.
 - [Skontaktuj się z nami](${u}/skontaktuj-sie-z-nami): wsparcie techniczne 24/7.
 - [O nas](${u}/o-nas): informacje o dostawcy.
+- [Blog i poradniki](${u}/blog): artykuły o konfiguracji i rozwiązywaniu problemów.
+
+## Poradniki
+
+${blog}
 
 ## Informacje prawne
 

@@ -32,3 +32,20 @@ WooCommerce checkout is not migrated. "Zamów teraz" buttons open WhatsApp with 
 - **Hero demo video**: set `NEXT_PUBLIC_DEMO_VIDEO_ID` to a YouTube id. It loads only after the visitor clicks play.
 - **Real reviews**: fill `TESTIMONIALS` and `REVIEW_BADGE` in `lib/reviews.ts`. Blocks appear only when they contain data. Never add invented reviews.
 - **Prices**: all in `lib/site.ts` (`PRICES`). Tiers 4 and 5 devices are extrapolated, adjust as needed.
+
+## Blog: how to add an article
+1. Create a file in `content/blog/`, for example `content/blog/moj-artykul.md`. The file name becomes the URL: `/blog/moj-artykul` (lowercase letters, digits and hyphens only).
+2. Start the file with this header, then write the article in Markdown. Do not add a `#` title, it is generated from `title`. Use `##` for sections and `###` for sub-sections.
+
+       ---
+       title: "Tytuł artykułu"
+       description: "Opis do Google, około 150 znaków."
+       date: "2026-09-21"
+       updated: "2026-10-05"   # optional, only when you really update it
+       tags: ["poradnik", "fire tv"]
+       ---
+
+3. `git add -A`, `git commit`, `git push`. Vercel publishes it in about a minute.
+4. Files whose name starts with `_` are drafts and are not published. A `date` in the future hides the article until that day.
+
+Each article gets its own page, social image, Article and breadcrumb data, sitemap entry, RSS item (`/blog/feed.xml`), `llms.txt` line, a table of contents and a call-to-action box. Links to other pages are written as `[text](/przewodnik-instalacji)`. Do not use other companies' logos or screenshots.

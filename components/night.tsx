@@ -31,17 +31,20 @@ export function NightHeading({
   title,
   sub,
   align = "center",
+  as: Tag = "h2",
 }: {
   eyebrow: string;
   title: ReactNode;
   sub?: ReactNode;
   align?: "center" | "left";
+  /** Use "h1" on pages where this is the main heading. */
+  as?: "h1" | "h2";
 }) {
   const center = align === "center";
   return (
     <div className={`mb-14 ${center ? "text-center" : ""}`}>
       <p className={`eyebrow ${center ? "eyebrow-center" : ""}`}>{eyebrow}</p>
-      <h2 className="text-gradient mt-4 text-3xl font-extrabold tracking-tight md:text-5xl">{title}</h2>
+      <Tag className="text-gradient mt-4 text-3xl font-extrabold tracking-tight md:text-5xl">{title}</Tag>
       {sub && <p className={`mt-4 max-w-2xl text-lg text-slate-400 ${center ? "mx-auto" : ""}`}>{sub}</p>}
     </div>
   );

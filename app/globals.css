@@ -155,3 +155,102 @@ details[open] .faq-icon {
     bottom: 5.5rem;
   }
 }
+
+/* ---------- Article typography (blog) ---------- */
+.prose-night {
+  font-size: 1.075rem;
+  line-height: 1.85;
+  color: #cbd5e1;
+}
+.prose-night > :first-child {
+  margin-top: 0;
+}
+.prose-night h2 {
+  margin: 2.75rem 0 1rem;
+  scroll-margin-top: 6rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.prose-night h3 {
+  margin: 2rem 0 0.75rem;
+  scroll-margin-top: 6rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+.prose-night p {
+  margin: 1.1rem 0;
+}
+.prose-night a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-night a:hover {
+  color: #f3d48a;
+}
+.prose-night strong {
+  color: #fff;
+  font-weight: 700;
+}
+.prose-night ul,
+.prose-night ol {
+  margin: 1.1rem 0;
+  padding-left: 1.5rem;
+}
+.prose-night ul {
+  list-style: disc;
+}
+.prose-night ol {
+  list-style: decimal;
+}
+.prose-night li {
+  margin: 0.45rem 0;
+  padding-left: 0.25rem;
+}
+.prose-night li::marker {
+  color: var(--accent);
+}
+.prose-night blockquote {
+  margin: 1.75rem 0;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: rgb(255 255 255 / 0.04);
+  padding: 1rem 1.25rem;
+  color: #e2e8f0;
+}
+.prose-night blockquote p {
+  margin: 0.4rem 0;
+}
+.prose-night code {
+  border-radius: 0.375rem;
+  background: rgb(255 255 255 / 0.08);
+  padding: 0.15rem 0.4rem;
+  font-size: 0.92em;
+  color: #f3d48a;
+}
+.prose-night table {
+  display: block;
+  width: 100%;
+  margin: 1.75rem 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.prose-night th,
+.prose-night td {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  padding: 0.7rem 1rem;
+  text-align: left;
+}
+.prose-night th {
+  background: rgb(255 255 255 / 0.06);
+  color: #fff;
+}
+.prose-night hr {
+  margin: 2.5rem 0;
+  border-color: rgb(255 255 255 / 0.1);
+}
