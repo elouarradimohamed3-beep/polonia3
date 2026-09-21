@@ -1,56 +1,51 @@
 import { getAllPosts } from "@/lib/blog";
-import { eur } from "@/lib/pricing";
-import { CONNECTION_OPTIONS, PLAN_DEFS, PRICES, RESELLER_PACKAGES, SITE } from "@/lib/site";
+import { eur, LOWEST_MONTHLY, LOWEST_PRICE } from "@/lib/pricing";
+import { blogPath, ROUTES } from "@/lib/routes";
+import { CONNECTION_OPTIONS, PLAN_DEFS, PLAN_NAMES, PRICES, RESELLER_PACKAGES, SITE } from "@/lib/site";
 
 // Generated from the same data as the website, so the domain and prices never go stale.
 export const dynamic = "force-static";
 
 export function GET() {
+  const u = SITE.url;
   const priceLines = CONNECTION_OPTIONS.flatMap((c) => {
     const parts = PLAN_DEFS.flatMap((p) => {
       const price = PRICES[c][p.id];
-      return price == null ? [] : [`${p.name.toLowerCase()} ${eur(price)}`];
+      return price == null ? [] : [`${PLAN_NAMES.en[p.id]} ${eur("en", price)}`];
     });
-    return parts.length ? [`- Ceny dla ${c === 1 ? "1 urządzenia" : `${c} urządzeń`}: ${parts.join(", ")}.`] : [];
+    return parts.length ? [`- Prices for ${c} ${c === 1 ? "device" : "devices"}: ${parts.join(", ")}.`] : [];
   });
-  const reseller = RESELLER_PACKAGES.map((p) => `${p.credits} kredytów (${eur(p.price)})`).join(", ");
-  const u = SITE.url;
-  const blog = getAllPosts()
-    .map((p) => `- [${p.title}](${u}/blog/${p.slug}): ${p.description}`)
-    .join("\n");
+  const reseller = RESELLER_PACKAGES.map((p) => `${p.credits} credits (${eur("en", p.price)})`).join(", ");
+  const posts = (["pl", "en"] as const).flatMap((lang) => getAllPosts(lang).map((p) => `- [${p.title}](${u}${blogPath(lang, p.slug)}) (${lang.toUpperCase()}): ${p.description}`));
 
   const body = `# ${SITE.name}
 
-> ${SITE.name} (${new URL(u).hostname}) to polskojęzyczny dostawca abonamentów IPTV, czyli telewizji dostarczanej przez internet. Oferta obejmuje kanały na żywo, filmy i seriale VOD, jakość 4K/FHD/HD, przewodnik EPG i wsparcie 24/7. Subskrypcje zaczynają się od 15 € miesięcznie.
+> ${SITE.name} (${new URL(u).hostname}) is a Polish-language internet TV (IPTV) service for Polonia, meaning Poles living abroad, and for anyone who wants Polish television and on-demand programmes over the internet. It is also searched for as "IPTV Polska". Plans run from a 1-day plan (${eur("en", LOWEST_PRICE)}) to 2 years, for 1 to 5 devices, from ${eur("en", LOWEST_MONTHLY)} a month. A free trial is available and support is offered 24/7 in Polish and English. The website is available in Polish (default) and English.
 
-## Kluczowe fakty
+## Key facts
 
 ${priceLines.join("\n")}
-- Aktywacja: dane logowania przychodzą e-mailem, zwykle w ciągu 5 minut do 6 godzin od płatności.
-- Płatności: PayPal oraz karty Visa/Mastercard przez bramkę PayPal. Zamówienia można też złożyć przez WhatsApp.
-- Urządzenia: Smart TV (Samsung, LG, Android TV), Fire TV Stick, Android, iOS, MAG, Windows, Enigma 2.
-- Darmowy test: 24 do 48 godzin, formularz na stronie głównej.
-- Wsparcie: 24/7 przez WhatsApp (${SITE.phoneDisplay}) i e-mail (${SITE.email}).
-- Program resellerski: pakiety ${reseller}.
+- Devices: Smart TV (Samsung, LG, Android TV), Fire TV Stick, Android, iPhone and iPad, MAG, Windows, Mac, Enigma 2.
+- Payment: PayPal, plus Visa and Mastercard through PayPal; orders can also be placed by WhatsApp (${SITE.phoneDisplay}) or e-mail (${SITE.email}).
+- Login details are usually sent within 5 minutes to 6 hours after payment.
+- Refund: available before activation and within 7 days if the service does not work on your device and support cannot fix it.
+- Reseller program: packages ${reseller}.
+- Content availability depends on plan and region. Rights holders: see the copyright policy.
 
-## Strony
+## Pages (Polish, default)
 
-- [Strona główna: oferta, cennik i FAQ](${u}/): plany abonamentowe, funkcje, najczęstsze pytania.
-- [Sprzedawca IPTV](${u}/sprzedawca-iptv): program resellerski z własnym panelem.
-- [Przewodnik instalacji](${u}/przewodnik-instalacji): konfiguracja IPTV krok po kroku na każdym urządzeniu.
-- [Skontaktuj się z nami](${u}/skontaktuj-sie-z-nami): wsparcie techniczne 24/7.
-- [O nas](${u}/o-nas): informacje o dostawcy.
-- [Blog i poradniki](${u}/blog): artykuły o konfiguracji i rozwiązywaniu problemów.
+- [Strona główna: IPTV Polonia](${u}/)
+- [Instalacja](${u}${ROUTES.guide.pl}), [Sprzedawca IPTV](${u}${ROUTES.reseller.pl}), [Blog](${u}${ROUTES.blog.pl}), [O nas](${u}${ROUTES.about.pl}), [Kontakt](${u}${ROUTES.contact.pl})
+- [Regulamin](${u}${ROUTES.terms.pl}), [Zasady zwrotów](${u}${ROUTES.refunds.pl}), [Polityka prywatności](${u}${ROUTES.privacy.pl}), [Prawa autorskie](${u}${ROUTES.copyright.pl})
 
-## Poradniki
+## Pages (English)
 
-${blog}
+- [Home: IPTV Polonia](${u}${ROUTES.home.en}), [Setup guide](${u}${ROUTES.guide.en}), [Reseller program](${u}${ROUTES.reseller.en}), [Blog](${u}${ROUTES.blog.en}), [About](${u}${ROUTES.about.en}), [Contact](${u}${ROUTES.contact.en})
+- [Terms](${u}${ROUTES.terms.en}), [Refund policy](${u}${ROUTES.refunds.en}), [Privacy policy](${u}${ROUTES.privacy.en}), [Copyright policy](${u}${ROUTES.copyright.en})
 
-## Informacje prawne
+## Articles
 
-- [Regulamin](${u}/regulamin-iptv)
-- [Zasady zwrotów i anulowania](${u}/zasady-zwrotow-i-anulowania)
+${posts.join("\n")}
 `;
-
   return new Response(body, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 }

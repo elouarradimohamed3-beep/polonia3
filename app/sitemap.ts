@@ -1,36 +1,35 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts } from "@/lib/blog";
-import { LAST_MODIFIED } from "@/lib/seo";
-import { SITE } from "@/lib/site";
+import { getAllPosts, getTranslation } from "@/lib/blog";
+import { blogPath, ROUTES, type RouteKey } from "@/lib/routes";
+import { LAST_MODIFIED, abs } from "@/lib/seo";
 
-const ROUTES: { path: string; priority: number; changeFrequency: "weekly" | "monthly" | "yearly" }[] = [
-  { path: "/", priority: 1, changeFrequency: "weekly" },
-  { path: "/sprzedawca-iptv", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/przewodnik-instalacji", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/blog", priority: 0.8, changeFrequency: "weekly" },
-  { path: "/skontaktuj-sie-z-nami", priority: 0.7, changeFrequency: "yearly" },
-  { path: "/o-nas", priority: 0.5, changeFrequency: "yearly" },
-  { path: "/regulamin-iptv", priority: 0.3, changeFrequency: "yearly" },
-  { path: "/zasady-zwrotow-i-anulowania", priority: 0.3, changeFrequency: "yearly" },
-];
+const PRIORITY: Record<RouteKey, number> = { home: 1, guide: 0.8, blog: 0.8, reseller: 0.7, contact: 0.7, about: 0.5, terms: 0.3, refunds: 0.3, privacy: 0.3, copyright: 0.4 };
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const posts = getAllPosts();
-  const newest = posts[0]?.updated ?? posts[0]?.date;
+  const pages: MetadataRoute.Sitemap = (Object.keys(ROUTES) as RouteKey[]).flatMap((key) =>
+    (["pl", "en"] as const).map((lang) => ({
+      url: abs(ROUTES[key][lang]),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: key === "home" || key === "blog" ? ("weekly" as const) : ("monthly" as const),
+      priority: PRIORITY[key],
+      alternates: { languages: { pl: abs(ROUTES[key].pl), en: abs(ROUTES[key].en), "x-default": abs(ROUTES[key].pl) } },
+    })),
+  );
 
-  const pages = ROUTES.map(({ path, priority, changeFrequency }) => ({
-    url: `${SITE.url}${path === "/" ? "" : path}`,
-    lastModified: path === "/blog" && newest ? newest : LAST_MODIFIED,
-    changeFrequency,
-    priority,
-  }));
+  const posts: MetadataRoute.Sitemap = (["pl", "en"] as const).flatMap((lang) =>
+    getAllPosts(lang).map((p) => {
+      const tr = getTranslation(p);
+      const en = lang === "en" ? p : tr;
+      const pl = lang === "pl" ? p : tr;
+      return {
+        url: abs(blogPath(lang, p.slug)),
+        lastModified: p.updated ?? p.date,
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+        ...(en && pl ? { alternates: { languages: { pl: abs(blogPath("pl", pl.slug)), en: abs(blogPath("en", en.slug)), "x-default": abs(blogPath("pl", pl.slug)) } } } : {}),
+      };
+    }),
+  );
 
-  const articles = posts.map((p) => ({
-    url: `${SITE.url}/blog/${p.slug}`,
-    lastModified: p.updated ?? p.date,
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }));
-
-  return [...pages, ...articles];
+  return [...pages, ...posts];
 }

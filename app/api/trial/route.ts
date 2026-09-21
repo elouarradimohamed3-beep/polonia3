@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "invalid_json" }, { status: 400 });
   }
 
-  const { email, device, consent, website } = body;
+  const { email, device, consent, website, lang } = body;
 
   // Honeypot: real visitors never fill this hidden field.
   if (typeof website === "string" && website.trim() !== "") {
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   const lead = {
     email: email.trim(),
     device,
-    source: `${process.env.NEXT_PUBLIC_SITE_URL ?? "www.iptvpolonia.pl"} / darmowy test`,
+    source: `${process.env.NEXT_PUBLIC_SITE_URL ?? "poloniaiptv.pl"} / free trial (${lang === "pl" ? "pl" : "en"})`,
     createdAt: new Date().toISOString(),
   };
 
@@ -76,11 +76,11 @@ export async function POST(request: Request) {
         method: "POST",
         headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: process.env.TRIAL_FROM_EMAIL ?? "IPTV Polska <onboarding@resend.dev>",
+          from: process.env.TRIAL_FROM_EMAIL ?? "Polonia IPTV <onboarding@resend.dev>",
           to: [to],
           reply_to: lead.email,
-          subject: "Nowa prośba o darmowy test IPTV",
-          text: `E-mail: ${lead.email}\nUrządzenie: ${lead.device}\nŹródło: ${lead.source}\nData: ${lead.createdAt}`,
+          subject: "New free trial request (Polonia IPTV)",
+          text: `E-mail: ${lead.email}\nDevice: ${lead.device}\nSource: ${lead.source}\nDate: ${lead.createdAt}`,
         }),
       });
       if (!res.ok) throw new Error(`resend ${res.status}`);

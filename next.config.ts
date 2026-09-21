@@ -9,19 +9,18 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  images: {
-    formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 60 * 60 * 24 * 30,
-  },
+  // Two root layouts (one per language) need a global 404 page.
+  experimental: { globalNotFound: true },
+  images: { formats: ["image/avif", "image/webp"], minimumCacheTTL: 60 * 60 * 24 * 30 },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
-  // Old WordPress / WooCommerce URLs keep working (and keep their SEO value).
+  // Old WordPress / WooCommerce addresses keep working (and keep their SEO value).
   async redirects() {
     return [
-      { source: "/shop", destination: "/#pricing", permanent: true },
-      { source: "/cart", destination: "/#pricing", permanent: true },
-      { source: "/checkout", destination: "/#pricing", permanent: true },
+      { source: "/shop", destination: "/#plans", permanent: true },
+      { source: "/cart", destination: "/#plans", permanent: true },
+      { source: "/checkout", destination: "/#plans", permanent: true },
       { source: "/my-account", destination: "/skontaktuj-sie-z-nami", permanent: true },
       { source: "/refund_returns", destination: "/zasady-zwrotow-i-anulowania", permanent: true },
       { source: "/refund-and-returns-policy", destination: "/zasady-zwrotow-i-anulowania", permanent: true },

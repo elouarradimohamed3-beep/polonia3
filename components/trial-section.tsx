@@ -1,47 +1,33 @@
 import { Check } from "lucide-react";
-import { NightSection, glass } from "@/components/night";
 import { TrialForm } from "@/components/trial-form";
+import { Section } from "@/components/ui";
+import type { Lang } from "@/lib/i18n";
 
-const POINTS = [
-  "Pełny dostęp do ponad 40 000 kanałów",
-  "Test trwa 24 do 48 godzin",
-  "Bez zobowiązań i bez płatności z góry",
-  "Dane logowania wyślemy na Twój e-mail",
-];
+const copy = {
+  pl: { eyebrow: "Bez ryzyka", title: "Wypróbuj IPTV Polonia za darmo", text: "Sprawdź jakość obrazu, ofertę i działanie na własnym urządzeniu, zanim wybierzesz plan.", points: ["Test na Twoim ekranie", "Bez płatności z góry", "Dane logowania wyślemy e-mailem", "Pomoc w instalacji, gdy jej potrzebujesz"] },
+  en: { eyebrow: "No risk", title: "Try IPTV Polonia for free", text: "Check the picture quality, the line-up and how it works on your own device before you choose a plan.", points: ["Test on your own screen", "No payment upfront", "Login details sent by e-mail", "Help with setup if you need it"] },
+} as const;
 
-export function TrialSection() {
+export function TrialSection({ lang }: { lang: Lang }) {
+  const t = copy[lang];
   return (
-    <NightSection id="trial">
-      <div className={`${glass} relative overflow-hidden`}>
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-amber-400/15 blur-[100px]"
-        />
-        <div className="relative grid gap-10 p-8 md:p-12 lg:grid-cols-2 lg:gap-16">
-          <div>
-            <p className="eyebrow">Bez ryzyka</p>
-            <h2 className="text-gradient mt-4 text-3xl font-extrabold tracking-tight md:text-5xl">
-              Wypróbuj IPTV Polska za darmo
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-slate-300">
-              Sprawdź jakość obrazu, listę kanałów i działanie na swoim urządzeniu, zanim wybierzesz plan.
-            </p>
-            <ul className="mt-8 space-y-3">
-              {POINTS.map((p) => (
-                <li key={p} className="flex items-start gap-3 text-slate-200">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-header">
-                    <Check size={14} strokeWidth={3.5} aria-hidden="true" />
-                  </span>
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-[#08101f]/80 p-6 md:p-8">
-            <TrialForm />
-          </div>
+    <Section id="trial" tone="navy">
+      <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <p className="eyebrow">{t.eyebrow}</p>
+          <h2 className="font-display mt-4 text-3xl font-bold leading-tight text-white md:text-[2.75rem]">{t.title}</h2>
+          <p className="mt-5 text-lg leading-relaxed text-white/85">{t.text}</p>
+          <ul className="mt-8 space-y-3">
+            {t.points.map((p) => (
+              <li key={p} className="flex items-start gap-3 text-white">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-white"><Check size={14} strokeWidth={3.5} aria-hidden="true" /></span>
+                {p}
+              </li>
+            ))}
+          </ul>
         </div>
+        <div className="rounded-2xl bg-white p-6 shadow-2xl shadow-black/30 md:p-8"><TrialForm lang={lang} /></div>
       </div>
-    </NightSection>
+    </Section>
   );
 }

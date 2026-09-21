@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "IPTV Polska",
-    short_name: "IPTV Polska",
-    description: "Subskrypcje IPTV od 15 € miesięcznie. Kanały na żywo, VOD, 4K/FHD/HD, wsparcie 24/7.",
+    name: "IPTV Polonia",
+    short_name: "IPTV Polonia",
+    description: "Polska telewizja przez internet dla Polonii: telewizja na żywo i programy na żądanie na każdym ekranie.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#0a1628",
+    background_color: "#faf7f2",
+    theme_color: "#0d1f3c",
     lang: "pl",
   };
 }

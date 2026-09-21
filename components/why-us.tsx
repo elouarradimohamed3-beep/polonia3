@@ -1,62 +1,53 @@
-import { Gem, MonitorSmartphone, Server, Tv, Wrench, Zap, type LucideIcon } from "lucide-react";
-import { NightHeading, NightSection, glass, glassHover } from "@/components/night";
-import { WHY_US } from "@/lib/site";
+import { CalendarClock, Languages, MonitorSmartphone, ShieldCheck, Tag, Wrench, type LucideIcon } from "lucide-react";
+import { Section, SectionHeading } from "@/components/ui";
+import type { Lang } from "@/lib/i18n";
 
-// One icon and one grid span per item in WHY_US (same order) - a bento layout.
-const ICONS: LucideIcon[] = [Zap, MonitorSmartphone, Tv, Server, Wrench, Gem];
-const SPANS = ["lg:col-span-3", "lg:col-span-3", "lg:col-span-2", "lg:col-span-2", "lg:col-span-2", "lg:col-span-6"];
+const icons: LucideIcon[] = [Languages, Wrench, CalendarClock, MonitorSmartphone, ShieldCheck, Tag];
 
-export function WhyUs() {
+const copy = {
+  pl: {
+    eyebrow: "Dlaczego IPTV Polonia", title: "Prosto, po polsku i bez niespodzianek",
+    items: [
+      ["Rozmawiamy po polsku", "Pomoc przez WhatsApp i e-mail po polsku lub angielsku, o każdej porze."],
+      ["Instalacja krok po kroku", "Instrukcje dla Smart TV, Fire TV Stick, Androida, iPhone'a, Windows i Maca."],
+      ["Płacisz za tyle czasu, ile chcesz", "Plany od 1 dnia do 2 lat. Zacznij krótko, wydłuż, gdy Ci pasuje."],
+      ["Cała rodzina, kilka ekranów", "W jednym planie od 1 do 5 urządzeń oglądających jednocześnie."],
+      ["Najpierw sprawdź", "Darmowy test i zwrot w 7 dni, gdy usługa nie działa na Twoim urządzeniu."],
+      ["Ceny bez niespodzianek", "Znasz cenę swojego okresu i liczby urządzeń, zanim zamówisz."],
+    ],
+  },
+  en: {
+    eyebrow: "Why IPTV Polonia", title: "Simple, in Polish and without surprises",
+    items: [
+      ["We speak Polish", "Help by WhatsApp and e-mail in Polish or English, at any time."],
+      ["Step-by-step setup", "Guides for Smart TV, Fire TV Stick, Android, iPhone, Windows and Mac."],
+      ["Pay for as long as you like", "Plans from 1 day to 2 years. Start short, extend when it suits you."],
+      ["The whole family, several screens", "One plan covers 1 to 5 devices watching at the same time."],
+      ["Check first", "A free trial and a 7-day refund if the service does not work on your device."],
+      ["No pricing surprises", "You know the price for your period and device count before you order."],
+    ],
+  },
+} as const;
+
+export function WhyUs({ lang }: { lang: Lang }) {
+  const t = copy[lang];
   return (
-    <NightSection>
-      <NightHeading
-        eyebrow="Zalety"
-        title="Dlaczego warto nas wybrać?"
-        sub="Nie masz ochoty na buforowanie i zamrażanie?"
-      />
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-        {WHY_US.map((item, i) => {
-          const Icon = ICONS[i] ?? Zap;
-          const wide = i === WHY_US.length - 1;
+    <Section tone="muted">
+      <SectionHeading eyebrow={t.eyebrow} title={t.title} />
+      <ul className="grid gap-x-10 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
+        {t.items.map(([title, text], i) => {
+          const Icon = icons[i];
           return (
-            <div
-              key={item.title}
-              className={`${glass} ${glassHover} group relative overflow-hidden p-7 ${SPANS[i] ?? ""} ${
-                wide ? "sm:col-span-2 lg:flex lg:items-center lg:gap-8" : ""
-              }`}
-            >
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-blue-500/0 blur-[70px] transition-colors duration-500 group-hover:bg-blue-500/25"
-              />
-              <span className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-800 text-white shadow-lg shadow-blue-900/40 ring-1 ring-white/20">
-                <Icon size={26} strokeWidth={1.8} aria-hidden="true" />
-              </span>
-              <div className={wide ? "mt-5 lg:mt-0" : ""}>
-                <h3 className={`relative font-bold leading-snug text-white ${wide ? "text-xl" : "mt-5 text-lg"}`}>
-                  {item.title}
-                </h3>
-                <p className="relative mt-2 text-sm leading-relaxed text-slate-400">{item.text}</p>
+            <li key={title} className="flex gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-brand shadow-sm ring-1 ring-border"><Icon size={22} strokeWidth={1.8} aria-hidden="true" /></span>
+              <div>
+                <h3 className="font-display text-lg font-bold text-header">{title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{text}</p>
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
-
-      <div className="relative mt-10 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-blue-700/40 via-blue-900/30 to-amber-500/20 p-8 md:p-12">
-        <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h3 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">
-              Gotowy na nieograniczoną rozrywkę?
-            </h3>
-            <p className="mt-2 text-slate-300">Wybierz plan i zacznij oglądać jeszcze dziś.</p>
-          </div>
-          <a href="#pricing" className="btn btn-accent btn-glow shrink-0 !px-8 !py-4">
-            Subskrybuj teraz
-          </a>
-        </div>
-      </div>
-    </NightSection>
+      </ul>
+    </Section>
   );
 }

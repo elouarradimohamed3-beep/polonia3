@@ -1,16 +1,15 @@
 import { CONNECTION_OPTIONS, PLAN_DEFS, PRICES, type Connections, type PlanId } from "@/lib/site";
+import { locales, type Lang } from "@/lib/i18n";
 
 export type PricedPlan = {
   id: PlanId;
-  name: string;
   months: number | null;
   /** EUR, or null when the price is on request. */
   price: number | null;
 };
 
-/** Formats euro amounts the Polish way: "15 €", "10,67 €". */
-export const eur = (n: number) =>
-  new Intl.NumberFormat("pl-PL", {
+export const eur = (lang: Lang, n: number) =>
+  new Intl.NumberFormat(locales[lang].intl, {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
@@ -21,7 +20,7 @@ export function getPlans(connections: Connections): PricedPlan[] {
 }
 
 export function planMeta(plan: PricedPlan, connections: Connections) {
-  const monthly = PRICES[connections]["1-miesiac"];
+  const monthly = PRICES[connections]["1-month"];
   const perMonth = plan.price != null && plan.months ? plan.price / plan.months : null;
   const saving =
     plan.price != null && monthly != null && plan.months && plan.months > 1
@@ -30,7 +29,7 @@ export function planMeta(plan: PricedPlan, connections: Connections) {
   return { perMonth, saving };
 }
 
-/** The plan with the lowest price per month for a device count (a factual "best value" marker). */
+/** Plan with the lowest price per month for a device count (a factual "best value" marker). */
 export function cheapestPerMonthId(connections: Connections): PlanId | null {
   const ranked = getPlans(connections)
     .filter((p) => p.price != null && p.months)
@@ -39,7 +38,13 @@ export function cheapestPerMonthId(connections: Connections): PlanId | null {
   return ranked[0]?.id ?? null;
 }
 
-/** Every published price, used for structured data. */
+export function planDays(months: number | null) {
+  if (!months) return 1;
+  if (months === 12) return 365;
+  if (months === 24) return 730;
+  return months * 30;
+}
+
 export const ALL_PRICES = CONNECTION_OPTIONS.flatMap((c) =>
   PLAN_DEFS.flatMap((def) => {
     const price = PRICES[c][def.id];
@@ -47,10 +52,5 @@ export const ALL_PRICES = CONNECTION_OPTIONS.flatMap((c) =>
   }),
 );
 
-/** Approximate number of days covered by a plan (used for the "per day" price). */
-export function planDays(months: number | null) {
-  if (!months) return 1;
-  if (months === 12) return 365;
-  if (months === 24) return 730;
-  return months * 30;
-}
+export const LOWEST_PRICE = Math.min(...ALL_PRICES.map((p) => p.price));
+export const LOWEST_MONTHLY = PRICES[1]["1-month"] as number;

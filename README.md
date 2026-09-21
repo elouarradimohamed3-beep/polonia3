@@ -1,51 +1,36 @@
-# IPTV Polska (Next.js)
+# IPTV Polonia (www.iptvpolonia.pl)
 
-Next.js (App Router, Tailwind v4) website for www.iptvpolonia.pl.
+Bilingual (Polish + English) Next.js 16 website. Main keyword: **"iptv polonia"** (also found as "iptv polska").
+Polish is the default language and lives at the root, so existing addresses keep working; English lives under `/en`.
 
 ## Run
     npm install
-    npm run dev      # http://localhost:3000
+    npm run dev        # http://localhost:3000
     npm run build && npm start
 
-## Where things live
-- `lib/site.ts`  contact details, plans, prices, FAQ, installation guide (edit content here)
-- `app/`         pages (home, sprzedawca-iptv, przewodnik-instalacji, skontaktuj-sie-z-nami, o-nas, regulamin-iptv, zasady-zwrotow-i-anulowania)
-- `public/images` images downloaded from the old WordPress uploads
-- `next.config.ts` 308 redirects for old WooCommerce URLs (/shop, /cart, /checkout, /my-account)
+## How the two languages work
+- Two root layouts: `app/(pl)/layout.tsx` (`<html lang="pl">`) and `app/(en)/layout.tsx` (`<html lang="en">`), sharing `components/root-shell.tsx`.
+- Every page exists in both languages with its own address (`lib/routes.ts`): `/przewodnik-instalacji` and `/en/setup-guide`, and so on.
+- Each component keeps its Polish and English copy together (`const copy = { pl: ..., en: ... }`). Plans, prices and contact details are in `lib/site.ts`.
+- SEO/GEO: canonical + `hreflang` (pl, en, x-default = Polish) on every page, language alternates in the sitemap, `inLanguage` in structured data (Organization, WebSite, Product with all prices, FAQPage, HowTo, Service, Article, Breadcrumb), a generated `llms.txt`, robots rules for search and AI crawlers, one RSS feed per language, per-article share images.
+- The language switcher links to the matching page (also for translated articles). Visitors with an English browser see a floating suggestion, never a redirect.
 
-## Environment
-`NEXT_PUBLIC_SITE_URL` (default `https://www.iptvpolonia.pl`, the address your host serves) is used for canonical URLs, sitemap and robots.
+## Design
+Light editorial theme: ivory paper, ink navy, Polish red, serif headlines (Fraunces) with Inter body text. Tokens and component classes are in `app/globals.css`. All illustrations are original SVG; no third-party images or logos.
 
-## Orders
-WooCommerce checkout is not migrated. "Zamów teraz" buttons open WhatsApp with the chosen plan prefilled.
+## Add an article
+1. Create `content/blog/pl/moj-artykul.md` and/or `content/blog/en/my-article.md` (file name = URL).
+2. Front matter: `title`, `description`, `date` (required); `updated`, `tags`, `translationKey` (optional).
+3. Give the Polish and English version the same `translationKey` so they link to each other.
+4. `git add -A && git commit && git push` publishes it. Files starting with `_` are drafts; a future date hides the article.
 
-## SEO / AI search
-- Per-page `<title>`, description, canonical, Open Graph and Twitter cards via `pageMetadata()` in `lib/seo.ts`.
-- JSON-LD: Organization, WebSite, WebPage/AboutPage/ContactPage, BreadcrumbList, Product + AggregateOffer (prices), FAQPage, Service (reseller), HowTo (installation guide).
-- `app/robots.ts` explicitly allows Googlebot, Bingbot and AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, ...). `public/llms.txt` summarises the site for LLMs.
-- `app/sitemap.ts` uses the fixed `LAST_MODIFIED` date in `lib/seo.ts`. Update it only when content really changes.
-- Set `NEXT_PUBLIC_SITE_URL` and (optional) `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in the host's environment.
-- Keep prices in `lib/site.ts` only; the pricing cards, comparison table, JSON-LD and `public/llms.txt` must match (llms.txt is manual).
+## Environment variables
+See `.env.example`. Most important: `NEXT_PUBLIC_SITE_URL` must equal the host the hosting actually serves (here `https://www.iptvpolonia.pl`).
+Trial form delivery: set `TRIAL_WEBHOOK_URL` or `RESEND_API_KEY` + `TRIAL_TO_EMAIL`. With none set, visitors are sent to WhatsApp with their details prefilled.
 
-## Home page conversion features
-- **Free-trial form** (`components/trial-form.tsx`, `app/api/trial/route.ts`). Set ONE of `TRIAL_WEBHOOK_URL` or `RESEND_API_KEY` + `TRIAL_TO_EMAIL` to receive leads. With neither set, visitors are sent to WhatsApp with their details prefilled, so nothing is lost.
-- **Hero demo video**: set `NEXT_PUBLIC_DEMO_VIDEO_ID` to a YouTube id. It loads only after the visitor clicks play.
-- **Real reviews**: fill `TESTIMONIALS` and `REVIEW_BADGE` in `lib/reviews.ts`. Blocks appear only when they contain data. Never add invented reviews.
-- **Prices**: all in `lib/site.ts` (`PRICES`). Tiers 4 and 5 devices are extrapolated, adjust as needed.
-
-## Blog: how to add an article
-1. Create a file in `content/blog/`, for example `content/blog/moj-artykul.md`. The file name becomes the URL: `/blog/moj-artykul` (lowercase letters, digits and hyphens only).
-2. Start the file with this header, then write the article in Markdown. Do not add a `#` title, it is generated from `title`. Use `##` for sections and `###` for sub-sections.
-
-       ---
-       title: "Tytuł artykułu"
-       description: "Opis do Google, około 150 znaków."
-       date: "2026-09-21"
-       updated: "2026-10-05"   # optional, only when you really update it
-       tags: ["poradnik", "fire tv"]
-       ---
-
-3. `git add -A`, `git commit`, `git push`. Vercel publishes it in about a minute.
-4. Files whose name starts with `_` are drafts and are not published. A `date` in the future hides the article until that day.
-
-Each article gets its own page, social image, Article and breadcrumb data, sitemap entry, RSS item (`/blog/feed.xml`), `llms.txt` line, a table of contents and a call-to-action box. Links to other pages are written as `[text](/przewodnik-instalacji)`. Do not use other companies' logos or screenshots.
+## Before going live
+- **Prices** in `lib/site.ts`: tiers for 4 and 5 devices are extrapolated. Confirm every price.
+- **Legal pages** (`lib/legal.ts`) are drafts, not legal advice. Have a lawyer review them and set the company details (`NEXT_PUBLIC_COMPANY_*`). The refund policy (7 days) is a draft rule: decide the real one.
+- **Reviews:** `lib/reviews.ts` is empty on purpose. Add real reviews only.
+- **Content rights:** claim only what you can prove. The redesigned copy avoids channel counts and catalogue sizes on purpose.
+- Add Google Search Console (Domain property), submit `sitemap.xml`, and test the trial form with a real e-mail.

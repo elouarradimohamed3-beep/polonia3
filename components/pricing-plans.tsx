@@ -3,111 +3,88 @@
 import { Compass, MonitorSmartphone } from "lucide-react";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { cheapestPerMonthId, eur, getPlans, planDays, planMeta, type PricedPlan } from "@/lib/pricing";
-import { CONNECTION_OPTIONS, PRICES, deviceLabel, whatsappLink, type Connections, type PlanId } from "@/lib/site";
+import type { Lang } from "@/lib/i18n";
+import { CONNECTION_OPTIONS, PLAN_NAMES, PRICES, deviceLabel, whatsappLink, type Connections, type PlanId } from "@/lib/site";
 
-function priceSubtitle(plan: PricedPlan, perMonth: number | null) {
-  if (plan.price == null) return "Przygotujemy dla Ciebie ofertę";
-  if (!plan.months || perMonth == null) return "Dostęp na 1 dzień";
-  const perDay = `ok. ${eur(plan.price / planDays(plan.months))} dziennie`;
-  if (plan.months === 1) return `Rozliczenie miesięczne · ${perDay}`;
-  return `${eur(perMonth)} / miesiąc · ${perDay}`;
-}
+const copy = {
+  pl: {
+    helper: "Który plan wybrać?", show: "Pokaż ten plan", devices: "Liczba urządzeń", tablist: "Liczba urządzeń w abonamencie",
+    best: "Najniższa cena za miesiąc", rec: "Polecany dla Ciebie", order: "Zamów teraz", ask: "Zapytaj o cenę", onRequest: "Cena na zapytanie",
+    prepare: "Przygotujemy dla Ciebie ofertę", oneDay: "Dostęp na 1 dzień", monthly: "Rozliczenie miesięczne", perMonth: "/ miesiąc", aDay: "ok.", perDay: "dziennie",
+    msg: (plan: string, dev: string, price: string) => `Cześć! Chcę zamówić IPTV Polonia: ${plan}, ${dev} (${price}).`,
+    msgAsk: (plan: string, dev: string) => `Cześć! Proszę o wycenę IPTV Polonia: ${plan}, ${dev}.`,
+    helperCards: [
+      { title: "Chcę tylko sprawdzić", c: 1, p: "1-day", text: (a: string) => `Najtańszy start: 1 dzień na jednym urządzeniu za ${a}.` },
+      { title: "Oglądam sam lub sama", c: 1, p: "1-year", text: (a: string, b: string) => `Rok za ${a}, czyli ${b} miesięcznie.` },
+      { title: "Oglądamy całą rodziną", c: 3, p: "1-year", text: (a: string, b: string) => `3 ekrany naraz. Rok za ${a}, czyli ${b} miesięcznie.` },
+    ],
+  },
+  en: {
+    helper: "Which plan should I choose?", show: "Show this plan", devices: "Number of devices", tablist: "Number of devices in the subscription",
+    best: "Lowest price per month", rec: "Recommended for you", order: "Order now", ask: "Ask for a price", onRequest: "Price on request",
+    prepare: "We will prepare an offer for you", oneDay: "1 day of access", monthly: "Billed monthly", perMonth: "/ month", aDay: "about", perDay: "a day",
+    msg: (plan: string, dev: string, price: string) => `Hello! I would like to order IPTV Polonia: ${plan}, ${dev} (${price}).`,
+    msgAsk: (plan: string, dev: string) => `Hello! I would like a price for IPTV Polonia: ${plan}, ${dev}.`,
+    helperCards: [
+      { title: "I just want to check it", c: 1, p: "1-day", text: (a: string) => `The lowest-cost start: 1 day on 1 device for ${a}.` },
+      { title: "I watch alone", c: 1, p: "1-year", text: (a: string, b: string) => `A year for ${a}, about ${b} a month.` },
+      { title: "We watch as a family", c: 3, p: "1-year", text: (a: string, b: string) => `3 screens at once. A year for ${a}, about ${b} a month.` },
+    ],
+  },
+} as const;
 
-function PlanCard({
-  plan,
-  connections,
-  recommended,
-}: {
-  plan: PricedPlan;
-  connections: Connections;
-  recommended: boolean;
-}) {
+function PlanCard({ lang, plan, connections, recommended }: { lang: Lang; plan: PricedPlan; connections: Connections; recommended: boolean }) {
+  const t = copy[lang];
   const { perMonth, saving } = planMeta(plan, connections);
   const featured = plan.id === cheapestPerMonthId(connections);
   const onRequest = plan.price == null;
+  const name = PLAN_NAMES[lang][plan.id];
+  const dev = deviceLabel(lang, connections);
 
-  const message = onRequest
-    ? `Cześć! Chcę zamówić plan IPTV Polska: ${plan.name}, ${deviceLabel(connections)}. Proszę o wycenę.`
-    : `Cześć! Chcę zamówić plan IPTV Polska: ${plan.name}, ${deviceLabel(connections)} (€${plan.price}).`;
+  let sub: string;
+  if (onRequest) sub = t.prepare;
+  else if (!plan.months || perMonth == null) sub = t.oneDay;
+  else {
+    const perDay = `${t.aDay} ${eur(lang, (plan.price as number) / planDays(plan.months))} ${t.perDay}`;
+    sub = plan.months === 1 ? `${t.monthly} · ${perDay}` : `${eur(lang, perMonth)} ${t.perMonth} · ${perDay}`;
+  }
+  const message = onRequest ? t.msgAsk(name, dev) : t.msg(name, dev, eur(lang, plan.price as number));
 
   return (
     <article
       className={`relative flex flex-col rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 ${
-        featured
-          ? "border border-amber-400/60 bg-gradient-to-b from-amber-400/[0.12] to-white/[0.03] shadow-[0_0_70px_-18px_rgba(217,172,79,0.55)]"
-          : "border border-white/10 bg-white/[0.04] hover:border-blue-400/40 hover:bg-white/[0.07]"
-      } ${recommended ? "ring-2 ring-emerald-400/70" : ""}`}
+        featured ? "band-navy on-navy shadow-2xl shadow-navy2/30" : "card card-hover"
+      } ${recommended ? "ring-2 ring-emerald-500" : ""}`}
     >
       {featured && (
-        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-4 py-1 text-xs font-bold uppercase tracking-wider text-header">
-          Najniższa cena / miesiąc
-        </span>
+        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-xs font-extrabold uppercase tracking-wider text-white">{t.best}</span>
       )}
       {recommended && !featured && (
-        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-emerald-400 px-4 py-1 text-xs font-bold uppercase tracking-wider text-emerald-950">
-          Polecany dla Ciebie
-        </span>
+        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-emerald-600 px-4 py-1 text-xs font-extrabold uppercase tracking-wider text-white">{t.rec}</span>
       )}
-
       <div className="flex min-h-7 items-center justify-between gap-3">
-        <h3 className={`text-sm font-bold uppercase tracking-[0.16em] ${featured ? "text-accent" : "text-blue-300"}`}>
-          {plan.name}
-        </h3>
+        <h3 className={`text-sm font-extrabold uppercase tracking-[0.16em] ${featured ? "text-accent" : "text-brand"}`}>{name}</h3>
         {saving ? (
-          <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-300 ring-1 ring-emerald-400/30">
-            −{saving}%
-          </span>
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${featured ? "bg-white/10 text-white" : "bg-emerald-50 text-emerald-700"}`}>−{saving}%</span>
         ) : null}
       </div>
-
-      <p className="mt-7 flex min-h-[3.75rem] items-baseline gap-1.5">
+      <p className="mt-6 flex min-h-[3.75rem] items-baseline gap-1.5">
         {onRequest ? (
-          <span className="self-center text-2xl font-extrabold tracking-tight text-white">Cena na zapytanie</span>
+          <span className={`font-display self-center text-2xl font-bold ${featured ? "text-white" : "text-header"}`}>{t.onRequest}</span>
         ) : (
-          <>
-            <span className="text-6xl font-extrabold leading-none tracking-tight text-white">{plan.price}</span>
-            <span className="text-2xl font-bold text-accent">€</span>
-          </>
+          <span className={`font-display text-6xl font-bold leading-none ${featured ? "text-white" : "text-header"}`}>{eur(lang, plan.price as number)}</span>
         )}
       </p>
-      <p className="mt-2 min-h-10 text-sm leading-snug text-slate-400">{priceSubtitle(plan, perMonth)}</p>
-
-      <a
-        href={whatsappLink(message)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`btn mt-6 w-full ${featured ? "btn-accent btn-glow" : "btn-primary btn-blue-glow"}`}
-      >
-        {onRequest ? "Zapytaj o cenę" : "Zamów teraz"}
+      <p className={`mt-2 min-h-10 text-sm leading-snug ${featured ? "text-white/75" : "text-ink-soft"}`}>{sub}</p>
+      <a href={whatsappLink(message)} target="_blank" rel="noopener noreferrer" className={`btn mt-6 w-full ${featured ? "btn-primary" : "btn-navy"}`}>
+        {onRequest ? t.ask : t.order}
       </a>
     </article>
   );
 }
 
-type Suggestion = { title: string; connections: Connections; plan: PlanId; text: (price: number, perMonth: number) => string };
-
-const SUGGESTIONS: Suggestion[] = [
-  {
-    title: "Chcę sprawdzić usługę",
-    connections: 1,
-    plan: "1-dzien",
-    text: (price) => `Najtańszy start: 1 dzień na jednym urządzeniu za ${eur(price)}.`,
-  },
-  {
-    title: "Oglądam sam lub sama",
-    connections: 1,
-    plan: "1-rok",
-    text: (price, perMonth) => `Rok oglądania za ${eur(price)}, czyli ${eur(perMonth)} miesięcznie.`,
-  },
-  {
-    title: "Oglądamy całą rodziną",
-    connections: 3,
-    plan: "1-rok",
-    text: (price, perMonth) => `3 urządzenia naraz. Rok za ${eur(price)}, czyli ${eur(perMonth)} miesięcznie.`,
-  },
-];
-
-export function PricingPlans() {
+export function PricingPlans({ lang }: { lang: Lang }) {
+  const t = copy[lang];
   const [selected, setSelected] = useState<Connections>(1);
   const [recommended, setRecommended] = useState<PlanId | null>(null);
   const tablist = useRef<HTMLDivElement>(null);
@@ -116,7 +93,6 @@ export function PricingPlans() {
     setSelected(n);
     setRecommended(null);
   }
-
   function onKeyDown(e: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
     if (e.key === "ArrowRight") next = (index + 1) % CONNECTION_OPTIONS.length;
@@ -129,35 +105,31 @@ export function PricingPlans() {
     tablist.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
   }
 
-  function applySuggestion(s: Suggestion) {
-    setSelected(s.connections);
-    setRecommended(s.plan);
-    document.getElementById("plan-cards")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
   return (
     <>
-      {/* Plan helper */}
       <div className="mb-12">
-        <p className="mb-4 flex items-center justify-center gap-2 text-sm font-semibold text-slate-300">
-          <Compass size={16} className="text-accent" aria-hidden="true" /> Który plan wybrać?
+        <p className="mb-4 flex items-center justify-center gap-2 text-sm font-bold text-header">
+          <Compass size={16} className="text-brand" aria-hidden="true" /> {t.helper}
         </p>
         <div className="grid gap-3 md:grid-cols-3">
-          {SUGGESTIONS.map((s) => {
-            const price = PRICES[s.connections][s.plan] as number;
-            const months = getPlans(s.connections).find((p) => p.id === s.plan)!.months as number;
+          {t.helperCards.map((h) => {
+            const conn = h.c as Connections;
+            const price = PRICES[conn][h.p as PlanId] as number;
+            const months = getPlans(conn).find((p) => p.id === h.p)!.months ?? 1;
             return (
               <button
-                key={s.title}
+                key={h.title}
                 type="button"
-                onClick={() => applySuggestion(s)}
-                className="group flex h-full flex-col items-start justify-start rounded-xl border border-white/10 bg-white/[0.04] p-5 text-left transition-colors hover:border-emerald-400/50 hover:bg-white/[0.07] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+                onClick={() => {
+                  setSelected(conn);
+                  setRecommended(h.p as PlanId);
+                  document.getElementById("plan-cards")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="card card-hover group flex h-full flex-col items-start justify-start p-5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
-                <span className="block font-bold text-white">{s.title}</span>
-                <span className="mt-1.5 block text-sm leading-relaxed text-slate-400">{s.text(price, price / months)}</span>
-                <span className="mt-3 block text-xs font-bold uppercase tracking-wider text-emerald-300 group-hover:underline">
-                  Pokaż ten plan
-                </span>
+                <span className="block font-bold text-header">{h.title}</span>
+                <span className="mt-1.5 block text-sm leading-relaxed text-ink-soft">{h.text(eur(lang, price), eur(lang, price / months))}</span>
+                <span className="mt-3 block text-xs font-extrabold uppercase tracking-wider text-brand group-hover:underline">{t.show}</span>
               </button>
             );
           })}
@@ -165,13 +137,8 @@ export function PricingPlans() {
       </div>
 
       <div id="plan-cards" className="mb-12 flex scroll-mt-28 flex-col items-center gap-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Liczba urządzeń</p>
-        <div
-          ref={tablist}
-          role="tablist"
-          aria-label="Liczba urządzeń w abonamencie"
-          className="flex max-w-full flex-wrap justify-center gap-1.5 rounded-3xl border border-white/10 bg-white/[0.04] p-1.5 sm:rounded-full"
-        >
+        <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-ink-soft">{t.devices}</p>
+        <div ref={tablist} role="tablist" aria-label={t.tablist} className="flex max-w-full flex-wrap justify-center gap-1.5 rounded-3xl border border-border bg-white p-1.5 sm:rounded-full">
           {CONNECTION_OPTIONS.map((n, i) => {
             const active = n === selected;
             return (
@@ -185,14 +152,10 @@ export function PricingPlans() {
                 tabIndex={active ? 0 : -1}
                 onClick={() => choose(n)}
                 onKeyDown={(e) => onKeyDown(e, i)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300 ${
-                  active
-                    ? "bg-accent text-header shadow-lg shadow-amber-500/20"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
-                }`}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${active ? "bg-header text-white" : "text-ink-soft hover:bg-muted hover:text-header"}`}
               >
                 <MonitorSmartphone size={16} aria-hidden="true" />
-                {deviceLabel(n)}
+                {deviceLabel(lang, n)}
               </button>
             );
           })}
@@ -200,16 +163,9 @@ export function PricingPlans() {
       </div>
 
       {CONNECTION_OPTIONS.map((n) => (
-        <div
-          key={n}
-          role="tabpanel"
-          id={`devices-panel-${n}`}
-          aria-labelledby={`devices-tab-${n}`}
-          hidden={n !== selected}
-          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-        >
+        <div key={n} role="tabpanel" id={`devices-panel-${n}`} aria-labelledby={`devices-tab-${n}`} hidden={n !== selected} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {getPlans(n).map((plan) => (
-            <PlanCard key={plan.id} plan={plan} connections={n} recommended={n === selected && plan.id === recommended} />
+            <PlanCard key={plan.id} lang={lang} plan={plan} connections={n} recommended={n === selected && plan.id === recommended} />
           ))}
         </div>
       ))}

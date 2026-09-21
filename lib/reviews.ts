@@ -1,13 +1,12 @@
 /**
- * Real customer proof. Leave empty until you have genuine, permitted content:
- * the home page shows these blocks only when they contain data.
- * Never add invented names, quotes, counts or ratings.
+ * Real customer proof. Leave empty until you have genuine, permitted content;
+ * the sections render only when they contain data. Never add invented reviews.
  */
 export type Testimonial = {
-  name: string; // first name is enough, e.g. "Marek"
+  name: string; // first name is enough
   place: string; // e.g. "Manchester, UK"
-  plan: string; // e.g. "1 rok, 3 urządzenia"
-  quote: string;
+  plan: string; // e.g. "1 year, 3 devices"
+  quote: Record<"en" | "pl", string>;
 };
 
 export const TESTIMONIALS: Testimonial[] = [];
