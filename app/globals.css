@@ -287,3 +287,48 @@ details[open] .faq-icon {
   line-height: 1;
   color: rgb(200 16 46 / 0.22);
 }
+
+/* ---------- Animated hero collage ---------- */
+.collage-zoom {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: collage-zoom 14s ease-in-out infinite alternate;
+}
+.collage-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: collage-spin 36s linear infinite;
+}
+.collage-twinkle {
+  animation: collage-twinkle 2.6s ease-in-out infinite;
+}
+.collage-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: collage-pulse 2.4s ease-in-out infinite;
+}
+.collage-sweep {
+  transform-box: view-box;
+  transform-origin: 64px 332px;
+  animation: collage-sweep 7s ease-in-out infinite alternate;
+}
+.collage-wave {
+  animation: collage-wave 7s linear infinite;
+}
+.collage-kernel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: collage-bob 3.2s ease-in-out infinite;
+}
+@keyframes collage-zoom { from { transform: scale(1); } to { transform: scale(1.07); } }
+@keyframes collage-spin { to { transform: rotate(360deg); } }
+@keyframes collage-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes collage-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+@keyframes collage-sweep { from { transform: rotate(-9deg); } to { transform: rotate(11deg); } }
+@keyframes collage-wave { from { transform: translateX(0); } to { transform: translateX(-120px); } }
+@keyframes collage-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) {
+  .collage-zoom, .collage-ring, .collage-twinkle, .collage-pulse, .collage-sweep, .collage-wave, .collage-kernel {
+    animation: none !important;
+  }
+}
