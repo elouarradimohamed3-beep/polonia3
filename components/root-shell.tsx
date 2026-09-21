@@ -1,4 +1,5 @@
 import { Fraunces, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { JsonLd } from "@/components/json-ld";
@@ -27,6 +28,7 @@ export function RootShell({ lang, children }: { lang: Lang; children: React.Reac
         <Footer lang={lang} />
         <WhatsAppFloat lang={lang} />
         <JsonLd data={[organizationLd, websiteLd]} />
+        <Analytics />
       </body>
     </html>
   );
